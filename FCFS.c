@@ -1,69 +1,51 @@
-#include <stdio.h>
+#include<stdio.h>
 
-int main()
-{
-    int n = 4;
+struct process{
+    int pid;
+    int at;
+    int bt;
+    int ct;
+    int tat;
+    int wt;
+    int rt;
+    int st;
+};
 
-    int process[4] = {1,2,3,4};
-    int arrival[4] = {0,1,2,3};
-    int burst[4]   = {5,3,8,6};
-
-    int waiting[4], turnaround[4], completion[4];
-
-    int i, j, temp;
-    int current_time = 0;
-    float avg_wt = 0, avg_tat = 0;
-
-    // Sort by Arrival Time
-    for(i = 0; i < n; i++)
-    {
-        for(j = i+1; j < n; j++)
-        {
-            if(arrival[i] > arrival[j])
-            {
-                temp = arrival[i];
-                arrival[i] = arrival[j];
-                arrival[j] = temp;
-
-                temp = burst[i];
-                burst[i] = burst[j];
-                burst[j] = temp;
-
-                temp = process[i];
-                process[i] = process[j];
-                process[j] = temp;
+int main(){
+    int n;
+    printf("Enter the number of processes: ");
+    scanf("%d",&n);
+    struct process p[n];
+    for(int i=0;i<n;i++){
+        p[i].pid=i+1;
+        printf("Enter Arrival Time of P%d: ", p[i].pid);
+        scanf("%d",&p[i].at);
+        printf("Enter Burst Time of P%d: ", p[i].pid);
+        scanf("%d",&p[i].bt);
+    }
+    for(int i=0;i<n-1;i++){
+        for(int j=0;j<n-i-1;j++){
+            if(p[j].at>p[j+1].at){
+                struct process temp=p[j];
+                p[j]=p[j+1];
+                p[j+1]=temp;
             }
         }
     }
-
-    for(i = 0; i < n; i++)
-    {
-        if(current_time < arrival[i])
-        {
-            current_time = arrival[i];
+    int time=0;
+    for(int i=0;i<n;i++){
+        if(time<p[i].at){
+            time=p[i].at;
         }
-
-        completion[i] = current_time + burst[i];
-        turnaround[i] = completion[i] - arrival[i];
-        waiting[i] = turnaround[i] - burst[i];
-
-        current_time = completion[i];
-
-        avg_wt += waiting[i];
-        avg_tat += turnaround[i];
+        p[i].st=time;
+        p[i].rt=p[i].st-p[i].at;
+        time+=p[i].bt;
+        p[i].ct=time;
+        p[i].tat=p[i].ct-p[i].at;
+        p[i].wt=p[i].tat-p[i].bt;
     }
-
-    printf("Process\tAT\tBT\tCT\tTAT\tWT\n");
-
-    for(i = 0; i < n; i++)
-    {
-        printf("P%d\t%d\t%d\t%d\t%d\t%d\n",
-        process[i], arrival[i], burst[i],
-        completion[i], turnaround[i], waiting[i]);
+    printf("\nPID\tAT\tBT\tCT\tTAT\tWT\tRT\n");
+    for(int i=0;i<n;i++){
+        printf("%d\t%d\t%d\t%d\t%d\t%d\t%d\n",p[i].pid,p[i].at,p[i].bt,p[i].ct,p[i].tat,p[i].wt,p[i].rt);
     }
-
-    printf("\nAverage Waiting Time = %.2f", avg_wt/n);
-    printf("\nAverage Turnaround Time = %.2f", avg_tat/n);
-
-    return 0;
 }
